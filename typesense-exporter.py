@@ -26,7 +26,10 @@ from typing import Dict, List
 
 from prometheus_client import start_http_server, REGISTRY
 from prometheus_client.core import GaugeMetricFamily
-
+class NodeConfigDict(TypedDict):
+  host: str
+  port: str
+  protocol: str
 
 def parse_nodes_from_str(
     nodes_str: str, default_protocol: str = "https"
