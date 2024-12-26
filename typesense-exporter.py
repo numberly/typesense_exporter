@@ -51,12 +51,9 @@ def parse_nodes_from_str(
     nodes_config: List[Dict[str, str]] = []
     raw_nodes = [entry.strip() for entry in nodes_str.split(",") if entry.strip()]
     for entry in raw_nodes:
-        parts = entry.split(":", maxsplit=1)
-        if len(parts) == 2:
-            host, port = parts
-        else:
-            host = parts[0]
-            port = "8108"
+        host, *port = entry.split(":", maxsplit=1)
+        if not port:
+          port = "8108"
         nodes_config.append(
             {
                 "host": host,
