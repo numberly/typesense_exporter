@@ -22,7 +22,7 @@ import argparse
 import time
 import requests
 import typesense
-from typing import Dict, List
+from typing import Dict, List, TypedDict
 
 from prometheus_client import start_http_server, REGISTRY
 from prometheus_client.core import GaugeMetricFamily
@@ -131,6 +131,7 @@ class TypesenseCollector:
                 self.metrics_url,
                 headers={"X-TYPESENSE-API-KEY": self.typesense_api_key},
                 verify=self.verify_ssl,
+                timeout=5,
             )
             resp.raise_for_status()
             data = resp.json()
@@ -159,6 +160,7 @@ class TypesenseCollector:
                 self.stats_url,
                 headers={"X-TYPESENSE-API-KEY": self.typesense_api_key},
                 verify=self.verify_ssl,
+                timeout=5,
             )
             resp.raise_for_status()
             data = resp.json()
