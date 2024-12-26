@@ -33,7 +33,7 @@ class NodeConfigDict(TypedDict):
 
 def parse_nodes_from_str(
     nodes_str: str, default_protocol: str = "https"
-) -> List[Dict[str, str]]:
+) -> List[NodeConfigDict]:
     """
     Parse a comma-separated list of "host:port" strings into a list of node
     configuration dictionaries suitable for the Typesense Python client.
