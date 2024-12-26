@@ -51,8 +51,10 @@ def parse_nodes_from_str(
     nodes_config: List[Dict[str, str]] = []
     raw_nodes = [entry.strip() for entry in nodes_str.split(",") if entry.strip()]
     for entry in raw_nodes:
-        host, *port = entry.split(":", maxsplit=1)
-        if not port:
+        host, *port_list = entry.split(":", maxsplit=1)
+        if port_list:
+            port = port_list[0]  # Convert list to string
+        else:
           port = "8108"
         nodes_config.append(
             {
@@ -251,8 +253,10 @@ class TypesenseCollector:
         Returns:
             str: Sanitized metric name.
         """
-        return name.replace(".", "_").replace("-", "_")
-
+        sanitized = name.replace(".", "_").replace("-", "_")
+        if not sanitized.startswith("typesense_"):
+            sanitized = f"typesense_{sanitized}"
+        return sanitized
 
 def parse_args() -> argparse.Namespace:
     """
