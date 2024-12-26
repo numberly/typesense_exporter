@@ -62,12 +62,13 @@ Navigate to http://localhost:8000/metrics in your browser or use `curl http://lo
 
 | Argument                  | Env Var                    | Default                                     | Description                                                                                                      |
 |---------------------------|----------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| `--typesense-api-key`     | `TYPESENSE_API_KEY`        | *(none)*                                     | Your Typesense API key.                                                                                          |
+| `--typesense-api-key`     | `TYPESENSE_API_KEY`        | *(none)*                                    | Your Typesense API key.                                                                                          |
 | `--typesense-metrics-url` | `TYPESENSE_METRICS_URL`    | `https://localhost:8108/metrics.json`       | The full URL to `metrics.json` endpoint.                                                                         |
 | `--typesense-stats-url`   | `TYPESENSE_STATS_URL`      | `https://localhost:8108/stats.json`         | The full URL to `stats.json` endpoint.                                                                           |
-| `--typesense-nodes`       | `TYPESENSE_NODES`          | `localhost:8108`                            | A comma-separated list of `host:port` entries for Typesense nodes (e.g., `node1:8108,node2:8108`).              |
-| `--verify`                | `VERIFY_SSL`               | `False`                                      | Verify SSL certificates. Set `--verify` to enable, or `VERIFY_SSL=true` for environment.                         |
-| `--port`                  | *(not applicable)*         | `8000`                                       | Which port the exporter will listen on for Prometheus scrapes.                                                   |
+| `--typesense-debug-url`   | `TYPESENSE_DEBUG_URL`      | `https://localhost:8108/debug`              | The full URL to `stats.json` endpoint.                                                                           |
+| `--typesense-nodes`       | `TYPESENSE_NODES`          | `localhost:8108`                            | A comma-separated list of `host:port` entries for Typesense nodes (e.g., `node1:8108,node2:8108`).               |
+| `--verify`                | `VERIFY_SSL`               | `False`                                     | Verify SSL certificates. Set `--verify` to enable, or `VERIFY_SSL=true` for environment.                         |
+| `--port`                  | *(not applicable)*         | `8000`                                      | Which port the exporter will listen on for Prometheus scrapes.                                                   |
 
 > **Tip**: Command-line arguments override environment variables, which override the defaults.
 

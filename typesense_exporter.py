@@ -26,10 +26,13 @@ from typing import Dict, List, TypedDict
 
 from prometheus_client import start_http_server, REGISTRY
 from prometheus_client.core import GaugeMetricFamily
+
+
 class NodeConfigDict(TypedDict):
-  host: str
-  port: str
-  protocol: str
+    host: str
+    port: str
+    protocol: str
+
 
 def parse_nodes_from_str(
     nodes_str: str, default_protocol: str = "https"
@@ -45,17 +48,18 @@ def parse_nodes_from_str(
             The protocol to use for each node ("https", "http"). Defaults to "https".
 
     Returns:
-        List[Dict[str, str]]:
+        List[NodeConfigDict]:
             A list of node dictionaries, each containing "host", "port", and "protocol".
     """
-    nodes_config: List[Dict[str, str]] = []
+    nodes_config: List[NodeConfigDict] = []
     raw_nodes = [entry.strip() for entry in nodes_str.split(",") if entry.strip()]
     for entry in raw_nodes:
         host, *port_list = entry.split(":", maxsplit=1)
         if port_list:
-            port = port_list[0]  # Convert list to string
+            port = port_list[0]  # if "host:8108", port_list=[ '8108' ]
         else:
-          port = "8108"
+            port = "8108"
+
         nodes_config.append(
             {
                 "host": host,
@@ -78,6 +82,7 @@ class TypesenseCollector:
         typesense_api_key: str,
         metrics_url: str,
         stats_url: str,
+        debug_url: str,
         nodes: List[Dict[str, str]],
         verify_ssl: bool = True,
     ) -> None:
@@ -91,6 +96,8 @@ class TypesenseCollector:
                 The URL for retrieving /metrics.json from one of the Typesense nodes.
             stats_url (str):
                 The URL for retrieving /stats.json from one of the Typesense nodes.
+            debug_url (str):
+                The URL for retrieving /debug/ endpoint from one of the Typesense nodes.
             nodes (List[Dict[str, str]]):
                 A list of node configurations for the Typesense client.
             verify_ssl (bool, optional):
@@ -99,6 +106,7 @@ class TypesenseCollector:
         self.typesense_api_key = typesense_api_key
         self.metrics_url = metrics_url
         self.stats_url = stats_url
+        self.debug_url = debug_url
         self.verify_ssl = verify_ssl
 
         # Create a Typesense client to query collections, stats, etc.
@@ -116,11 +124,13 @@ class TypesenseCollector:
         calls this method on each scrape. We fetch from:
           - /metrics.json
           - /stats.json
+          - /debug/
           - The list of Typesense collections (for doc counts)
         and yield metric objects to the Prometheus registry.
         """
         yield from self._collect_metrics_json()
         yield from self._collect_stats_json()
+        yield from self._collect_debug_json()
         yield from self._collect_collections()
 
     def _collect_metrics_json(self):
@@ -215,6 +225,39 @@ class TypesenseCollector:
                 rps_metric.add_metric([endpoint], float_val)
             yield rps_metric
 
+    def _collect_debug_json(self):
+        """
+        Retrieve node state from /debug/. A typical response might be:
+          {
+            "state": 1,
+            "version": "x.x.x"
+          }
+        Where "state" == 1 means "leader", 4 means "follower, other value means error".
+        We yield a gauge 'typesense_node_state' with that numeric value.
+        """
+        try:
+            resp = requests.get(
+                self.debug_url,
+                headers={"X-TYPESENSE-API-KEY": self.typesense_api_key},
+                verify=self.verify_ssl,
+                timeout=5,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as exc:
+            print(f"[ERROR] Could not fetch {self.debug_url}: {exc}")
+            return
+
+        # data should contain { "state": <int>, "version": "..." }
+        state_val = data.get("state", 0)
+        # We'll store that value directly in a gauge
+        gauge = GaugeMetricFamily(
+            "typesense_node_state",
+            "Node state from /debug/ (1=leader,4=follower)",
+            value=state_val,
+        )
+        yield gauge
+
     def _collect_collections(self):
         """
         Retrieve all collections from Typesense, yielding a labeled metric
@@ -248,6 +291,8 @@ class TypesenseCollector:
         Convert a dictionary key, e.g. 'system_cpu1_active_percentage', into a valid
         Prometheus metric name. Replaces '.' or '-' with '_'.
 
+        Also ensures the metric name starts with 'typesense_' if it does not already.
+
         Args:
             name (str): Original metric key.
         Returns:
@@ -257,6 +302,7 @@ class TypesenseCollector:
         if not sanitized.startswith("typesense_"):
             sanitized = f"typesense_{sanitized}"
         return sanitized
+
 
 def parse_args() -> argparse.Namespace:
     """
@@ -287,6 +333,11 @@ def parse_args() -> argparse.Namespace:
             "TYPESENSE_STATS_URL", "https://localhost:8108/stats.json"
         ),
         help="URL for /stats.json. (Env: TYPESENSE_STATS_URL)",
+    )
+    parser.add_argument(
+        "--typesense-debug-url",
+        default=os.environ.get("TYPESENSE_DEBUG_URL", "https://localhost:8108/debug"),
+        help="URL for /debug/ (Env: TYPESENSE_DEBUG_URL).",
     )
     parser.add_argument(
         "--typesense-nodes",
@@ -323,6 +374,7 @@ def main() -> None:
         typesense_api_key=args.typesense_api_key,
         metrics_url=args.typesense_metrics_url,
         stats_url=args.typesense_stats_url,
+        debug_url=args.typesense_debug_url,
         nodes=nodes_config,
         verify_ssl=args.verify,
     )
