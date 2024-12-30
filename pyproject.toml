@@ -1,3 +1,34 @@
+[project]
+name = "typesense_exporter"
+version = "0.1.0"
+description = "A Prometheus exporter for Typesense."
+authors = [{name = "Solvik"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+
+[project.urls]
+homepage = "https://github.com/numberly/typesense_exporter"
+repository = "https://github.com/numberly/typesense_exporter"
+
+[dependencies]
+certifi = "2024.12.14"
+charset-normalizer = "3.4.1"
+idna = "3.10"
+prometheus-client = "0.16.0"
+requests = "2.32.2"
+typesense = "0.21.0"
+urllib3 = "2.3.0"
+
+[dev-dependencies]
+pytest = "^7.0"
+mypy = "^1.14"
+types-requests = "^2.32"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "$version"

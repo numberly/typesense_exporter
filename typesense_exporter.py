@@ -4,17 +4,6 @@ A Prometheus exporter that fetches metrics from a Typesense cluster
 each time Prometheus scrapes the /metrics endpoint. This approach
 ensures fresh metrics on every scrape, without running a separate
 polling loop.
-
-Usage:
-  1. Install dependencies:
-     pip install prometheus_client requests typesense
-  2. Run this script, e.g.:
-     ./typesense_exporter.py --port=8000
-  3. Add a scrape config in Prometheus to target this exporter:
-     scrape_configs:
-       - job_name: "typesense_exporter"
-         static_configs:
-           - targets: ["localhost:8000"]
 """
 
 import os
