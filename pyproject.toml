@@ -5,25 +5,23 @@ description = "A Prometheus exporter for Typesense."
 authors = [{name = "Solvik"}]
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.urls]
 homepage = "https://github.com/numberly/typesense_exporter"
 repository = "https://github.com/numberly/typesense_exporter"
 
-[dependencies]
-certifi = "2024.12.14"
-charset-normalizer = "3.4.1"
-idna = "3.10"
-prometheus-client = "0.16.0"
-requests = "2.32.2"
-typesense = "0.21.0"
-urllib3 = "2.3.0"
+[tool.pytest.ini_options]
+addopts = "-v --cov=typesense_exporter --cov-report=term-missing --cov-report=xml --cov-report=html"
+testpaths = ["tests"]
+asyncio_mode = "auto"
 
-[dev-dependencies]
-pytest = "^7.0"
-mypy = "^1.14"
-types-requests = "^2.32"
+[tool.coverage.run]
+branch = true
+source = ["typesense_exporter"]
+
+[tool.coverage.html]
+directory = "coverage_html"
 
 [build-system]
 requires = ["setuptools", "wheel"]
