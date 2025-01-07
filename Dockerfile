@@ -18,4 +18,3 @@ USER nobody:nogroup
 EXPOSE 8000
 
 CMD ["python", "typesense_exporter.py", "--port=8000"]
-
