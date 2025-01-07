@@ -82,4 +82,3 @@ This design guarantees that metrics are always up-to-date at scrape time (with n
 ## License
 
 This exporter is released under the MIT License. See LICENSE for details (or replace with your preferred license).
-
