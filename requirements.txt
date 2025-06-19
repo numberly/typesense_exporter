@@ -4,4 +4,4 @@ idna==3.10
 prometheus-client==0.16.0
 requests==2.32.2
 typesense==0.21.0
-urllib3==2.3.0
+urllib3==2.5.0
