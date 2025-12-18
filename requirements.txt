@@ -2,6 +2,6 @@ certifi==2024.12.14
 charset-normalizer==3.4.1
 idna==3.10
 prometheus-client==0.16.0
-requests==2.32.2
+requests==2.32.4
 typesense==0.21.0
 urllib3==2.6.0
